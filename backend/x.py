@@ -3,6 +3,9 @@ import mysql.connector
 import re # Regular expressions also called Regex
 from functools import wraps
 from icecream import ic
+import os
+from dotenv import load_dotenv
+load_dotenv()
 ic.configureOutput(prefix=f"___ | ", includeContext=True)
 
 import smtplib
@@ -110,11 +113,11 @@ def send_email(subject, html):
         # Copy the key : 
 
         # Email and password of the sender's Gmail account
-        sender_email = "etfedtsvin@gmail.com"
-        password = "mpfk fcmq ideq luot"  # If 2FA is on, use an App Password instead
+        sender_email = os.environ.get("MAIL_USER")
+        password = os.environ.get("MAIL_PASSWORD")
 
         # Receiver email address
-        receiver_email = "etfedtsvin@gmail.com"
+        receiver_email = os.environ.get("MAIL_USER")
         
         # Create the email message
         message = MIMEMultipart()
