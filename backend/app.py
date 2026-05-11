@@ -330,33 +330,71 @@ def get_locations():
         if "db" in locals(): db.close()
 
 
-"""
 ##############################
-@app.route("/forgot-password", methods=["GET", "POST"])
-def show_forgot_password():
+@app.get("/api/cars")
+@jwt_required()
+def get_cars():
     try:
-        if request.method == "GET":
-            try:
-                return render_template("page_forgot_password.html")
-            except Exception as ex:
-                ic(ex)
-            finally:
-                pass
-        if request.method == "POST":
-            try:
-                # best case
-                pass
-            except Exception as ex:
-                ic(ex)
-                return str(ex), 400
-            finally:
-                # disconnect from db
-                pass
+        user_pk = get_jwt_identity()
+        db, cursor = x.db()
+        q = "SELECT * FROM cars WHERE car_user_fk = %s"
+        cursor.execute(q, (user_pk,))
+        cars = cursor.fetchall()
+        return jsonify(cars), 200
     except Exception as ex:
         ic(ex)
+        return "Ups... Noget gik galt", 500
     finally:
-        pass   
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
-"""
-############################## hej adam
+
+##############################
+@app.post("/api/cars")
+@jwt_required()
+def add_car():
+    try:
+        user_pk = get_jwt_identity()
+        data = request.get_json()
+        car_brand = x.validate_car_brand(data.get("car_brand", ""))
+        car_license_plate = x.validate_car_license_plate(data.get("car_license_plate", ""))
+
+        car_pk = uuid.uuid4().hex
+        db, cursor = x.db()
+        q = "INSERT INTO cars VALUES (%s, %s, %s, %s)"
+        cursor.execute(q, (car_pk, user_pk, car_brand, car_license_plate))
+        db.commit()
+        return jsonify({"message": "Bil blev tilføjet"}), 200
+    except Exception as ex:
+        ic(ex)
+        if "company_exception car_brand" in str(ex):
+            return f"Bilmærke skal være {x.CAR_BRAND_MIN}-{x.CAR_BRAND_MAX} tegn", 400
+        if "company_exception car_license_plate" in str(ex):
+            return f"Nummerplade skal være {x.CAR_LICENSE_PLATE_MIN}-{x.CAR_LICENSE_PLATE_MAX} tegn", 400
+        return "Noget gik galt", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+##############################
+@app.delete("/api/cars/<car_pk>")
+@jwt_required()
+def delete_car(car_pk):
+    try:
+        user_pk = get_jwt_identity()
+        db, cursor = x.db()
+        q = "DELETE FROM cars WHERE car_pk = %s AND car_user_fk = %s"
+        cursor.execute(q, (car_pk, user_pk))
+        db.commit()
+        if cursor.rowcount == 0:
+            return "Bil blev ikke fundet", 404
+        return "Bilen blev slettet", 200
+    except Exception as ex:
+        ic(ex)
+        return "Ups... Noget gik galt", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
