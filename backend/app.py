@@ -329,34 +329,49 @@ def get_locations():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
-"""
 ##############################
-@app.route("/forgot-password", methods=["GET", "POST"])
-def show_forgot_password():
+@app.post("/api/cars")
+@jwt_required()
+def add_car():
     try:
-        if request.method == "GET":
-            try:
-                return render_template("page_forgot_password.html")
-            except Exception as ex:
-                ic(ex)
-            finally:
-                pass
-        if request.method == "POST":
-            try:
-                # best case
-                pass
-            except Exception as ex:
-                ic(ex)
-                return str(ex), 400
-            finally:
-                # disconnect from db
-                pass
+        user_pk = get_jwt_identity()
+        data = request.get_json()
+        car_brand = data.get("car_brand", "").strip()
+        car_license_plate = data.get("car_license_plate", "").strip()
+
+        if not car_brand or not car_license_plate:
+            return "Brand and license plate are required", 400
+
+        car_pk = uuid.uuid4().hex
+        db, cursor = x.db()
+        q = "INSERT INTO cars VALUES (%s, %s, %s, %s)"
+        cursor.execute(q, (car_pk, user_pk, car_brand, car_license_plate))
+        db.commit()
+        return jsonify({"message": "Bil tilføjet"}), 201
     except Exception as ex:
         ic(ex)
+        return "Noget gik galt", 500
     finally:
-        pass   
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
-"""
-############################## hej adam
+
+##############################
+@app.get("/api/cars")
+@jwt_required()
+def get_cars():
+    try:
+        user_pk = get_jwt_identity()
+        db, cursor = x.db()
+        q = "SELECT * FROM cars WHERE car_user_fk = %s"
+        cursor.execute(q, (user_pk,))
+        cars = cursor.fetchall()
+        return jsonify(cars), 200
+    except Exception as ex:
+        ic(ex)
+        return "Noget gik galt", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
