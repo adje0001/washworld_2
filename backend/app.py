@@ -347,10 +347,10 @@ def add_car():
         q = "INSERT INTO cars VALUES (%s, %s, %s, %s)"
         cursor.execute(q, (car_pk, user_pk, car_brand, car_license_plate))
         db.commit()
-        return jsonify({"message": "Bil tilføjet"}), 201
+        return jsonify({"message": "Bil blev tilføjet"}), 200
     except Exception as ex:
         ic(ex)
-        return "Noget gik galt", 500
+        return "Ups.. Noget gik galt", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
@@ -369,7 +369,7 @@ def get_cars():
         return jsonify(cars), 200
     except Exception as ex:
         ic(ex)
-        return "Noget gik galt", 500
+        return "Ups... Noget gik galt", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
