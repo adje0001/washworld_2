@@ -139,6 +139,7 @@ def send_email(subject, html):
         return "email sent"
        
     except Exception as ex:
+        ic(ex)
         return "cannot send email", 500
     finally:
         pass
