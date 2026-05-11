@@ -329,6 +329,26 @@ def get_locations():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
+##############################
+@app.get("/api/cars")
+@jwt_required()
+def get_cars():
+    try:
+        user_pk = get_jwt_identity()
+        db, cursor = x.db()
+        q = "SELECT * FROM cars WHERE car_user_fk = %s"
+        cursor.execute(q, (user_pk,))
+        cars = cursor.fetchall()
+        return jsonify(cars), 200
+    except Exception as ex:
+        ic(ex)
+        return "Ups... Noget gik galt", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
 ##############################
 @app.post("/api/cars")
 @jwt_required()
@@ -355,23 +375,5 @@ def add_car():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
-##############################
-@app.get("/api/cars")
-@jwt_required()
-def get_cars():
-    try:
-        user_pk = get_jwt_identity()
-        db, cursor = x.db()
-        q = "SELECT * FROM cars WHERE car_user_fk = %s"
-        cursor.execute(q, (user_pk,))
-        cars = cursor.fetchall()
-        return jsonify(cars), 200
-    except Exception as ex:
-        ic(ex)
-        return "Ups... Noget gik galt", 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
 
 
