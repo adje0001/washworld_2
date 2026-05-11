@@ -143,3 +143,25 @@ def send_email(subject, html):
         return "cannot send email", 500
     finally:
         pass
+
+
+##############################
+CAR_BRAND_MIN = 2
+CAR_BRAND_MAX = 50
+REGEX_CAR_BRAND = f"^.{{{CAR_BRAND_MIN},{CAR_BRAND_MAX}}}$"
+def validate_car_brand(brand):
+    brand = brand.strip()
+    if not re.match(REGEX_CAR_BRAND, brand):
+        raise Exception("company_exception car_brand")
+    return brand
+
+
+##############################
+CAR_LICENSE_PLATE_MIN = 2
+CAR_LICENSE_PLATE_MAX = 10
+REGEX_CAR_LICENSE_PLATE = f"^.{{{CAR_LICENSE_PLATE_MIN},{CAR_LICENSE_PLATE_MAX}}}$"
+def validate_car_license_plate(plate):
+    plate = plate.strip()
+    if not re.match(REGEX_CAR_LICENSE_PLATE, plate):
+        raise Exception("company_exception car_license_plate")
+    return plate
