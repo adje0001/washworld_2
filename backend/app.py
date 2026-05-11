@@ -356,24 +356,26 @@ def add_car():
     try:
         user_pk = get_jwt_identity()
         data = request.get_json()
-        car_brand = data.get("car_brand", "").strip()
-        car_license_plate = data.get("car_license_plate", "").strip()
-
-        if not car_brand or not car_license_plate:
-            return "Brand and license plate are required", 400
+        car_brand = x.validate_car_brand(data.get("car_brand", ""))
+        car_license_plate = x.validate_car_license_plate(data.get("car_license_plate", ""))
 
         car_pk = uuid.uuid4().hex
         db, cursor = x.db()
         q = "INSERT INTO cars VALUES (%s, %s, %s, %s)"
         cursor.execute(q, (car_pk, user_pk, car_brand, car_license_plate))
         db.commit()
-        return jsonify({"message": "Bil blev tilføjet"}), 200
+        return jsonify({"message": "Bil tilføjet"}), 201
     except Exception as ex:
         ic(ex)
-        return "Ups.. Noget gik galt", 500
+        if "company_exception car_brand" in str(ex):
+            return f"Bilmærke skal være {x.CAR_BRAND_MIN}-{x.CAR_BRAND_MAX} tegn", 400
+        if "company_exception car_license_plate" in str(ex):
+            return f"Nummerplade skal være {x.CAR_LICENSE_PLATE_MIN}-{x.CAR_LICENSE_PLATE_MAX} tegn", 400
+        return "Noget gik galt", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 
 
 
