@@ -158,10 +158,10 @@ def validate_car_brand(brand):
 
 ##############################
 CAR_LICENSE_PLATE_MIN = 2
-CAR_LICENSE_PLATE_MAX = 10
+CAR_LICENSE_PLATE_MAX = 7
 REGEX_CAR_LICENSE_PLATE = f"^.{{{CAR_LICENSE_PLATE_MIN},{CAR_LICENSE_PLATE_MAX}}}$"
-def validate_car_license_plate(plate):
-    plate = plate.strip()
+def validate_car_license_plate(plate): #Validate function used in the app.post("/api/cars")
+    plate = plate.replace(" ", "").strip() #Replace space with nothing so it wont count
     if not re.match(REGEX_CAR_LICENSE_PLATE, plate):
         raise Exception("company_exception car_license_plate")
-    return plate
+    return plate #returns a local cleaned version of plate fx AB12345 and stores it so its stored in the function

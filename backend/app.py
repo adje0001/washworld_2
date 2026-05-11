@@ -364,7 +364,7 @@ def add_car():
         q = "INSERT INTO cars VALUES (%s, %s, %s, %s)"
         cursor.execute(q, (car_pk, user_pk, car_brand, car_license_plate))
         db.commit()
-        return jsonify({"message": "Bil tilføjet"}), 201
+        return jsonify({"message": "Bil blev tilføjet"}), 200
     except Exception as ex:
         ic(ex)
         if "company_exception car_brand" in str(ex):
@@ -377,5 +377,24 @@ def add_car():
         if "db" in locals(): db.close()
 
 
+##############################
+@app.delete("/api/cars/<car_pk>")
+@jwt_required()
+def delete_car(car_pk):
+    try:
+        user_pk = get_jwt_identity()
+        db, cursor = x.db()
+        q = "DELETE FROM cars WHERE car_pk = %s AND car_user_fk = %s"
+        cursor.execute(q, (car_pk, user_pk))
+        db.commit()
+        if cursor.rowcount == 0:
+            return "Bil blev ikke fundet", 404
+        return "Bilen blev slettet", 200
+    except Exception as ex:
+        ic(ex)
+        return "Ups... Noget gik galt", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 
