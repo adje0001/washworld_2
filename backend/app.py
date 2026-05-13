@@ -201,7 +201,7 @@ def verify_account(key):
         if cursor.rowcount == 0:
             return "user already verified"
 
-        return f"Welcome to the system, you are verified"
+        return render_template("page_verified.html")
     except Exception as ex: 
         ic(ex)
         if "company_exception uuid4 invalid" in str(ex):
