@@ -177,6 +177,8 @@ def sign_up():
             return "invalid email", 400
         if "company_exception user_password" in str(ex):
             return f"user password {x.USER_PASSWORD_MIN} to {x.USER_PASSWORD_MAX} characters", 400
+        if "Duplicate entry" in str(ex) and "user_email" in str(ex):
+            return "Email er allerede i brug", 400
 
         return str(ex), 500
     finally:
